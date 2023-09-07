@@ -34,9 +34,21 @@ public class ApiController {
 	@Autowired
 	private UserService userService;
 	
+	@GetMapping("/health")
+	public ResponseEntity<Object> health() {
+		Health health = new Health("OK");
+		return new ResponseEntity<>(health, HttpStatus.OK);
+	}
+	
 	@GetMapping("/")
 	public ResponseEntity<Object> name() {
-		String name = "Hard tale";
+		SystemName name = new SystemName();
+		return new ResponseEntity<>(name, HttpStatus.OK);
+	}
+	
+	@GetMapping("/name")
+	public ResponseEntity<Object> fullName() {
+		SystemName name = new SystemName();
 		return new ResponseEntity<>(name, HttpStatus.OK);
 	}
 
