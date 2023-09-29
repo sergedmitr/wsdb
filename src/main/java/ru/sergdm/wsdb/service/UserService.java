@@ -3,9 +3,10 @@ package ru.sergdm.wsdb.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import io.micrometer.common.util.StringUtils;
@@ -85,6 +86,14 @@ public class UserService {
 		} else {
 			userRepository.deleteById(userId);
 		}
+	}
+	
+	public int accidental() throws InterruptedException{
+		Random r = new Random();
+		int mls = r.nextInt(1000 + 1);
+		TimeUnit.MILLISECONDS.sleep(mls);
+		return mls;
+
 	}
 	
 }

@@ -28,7 +28,7 @@ public class Scheduler {
 	
 	@Scheduled(fixedRateString = "1000", initialDelayString = "0")
 	public void schedulingTask() {
-		logger.info("scheduled!");
+		//logger.info("scheduled!");
 		testGauge.set(Scheduler.getRandomNumberInRange(0, 100));
 		testCounter.increment();
 	}

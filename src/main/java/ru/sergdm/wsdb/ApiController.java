@@ -3,6 +3,8 @@ package ru.sergdm.wsdb;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -44,6 +46,21 @@ public class ApiController {
 	public ResponseEntity<Object> name() {
 		SystemName name = new SystemName();
 		return new ResponseEntity<>(name, HttpStatus.OK);
+	}
+	
+	@GetMapping("/accidental")
+	public ResponseEntity<Object> accidental() {
+		try {
+			int mls = userService.accidental();
+			int rest = mls % 5;
+			logger.info("mls = {}, rest = {}", mls, rest);
+			if (rest == 3) {
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(rest);
+			}
+			return new ResponseEntity<>(mls, HttpStatus.OK);
+		} catch (InterruptedException ex) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+		}
 	}
 	
 	@GetMapping("/name")
