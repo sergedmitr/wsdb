@@ -87,8 +87,19 @@ public class ApiController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 		}
 	}
-	
-	@PostMapping(value = "/users")
+
+	@GetMapping(value = "/users/card/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<User> findUserByUsername(@PathVariable String username) {
+		logger.info("user/card = {}", username);
+		try {
+			User user = userService.findByUserName(username);
+			return ResponseEntity.ok(user);
+		} catch (ResourceNotFoundException ex) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+		}
+	}
+
+	@PostMapping(value = {"/users", "/users/card"})
 	public ResponseEntity<User> addUser(@Valid @RequestBody User user) throws URISyntaxException {
 		try {
 			User newUser = userService.save(user);
@@ -127,7 +138,18 @@ public class ApiController {
 			return ResponseEntity.notFound().build();
 		}
 	}
-	
+
+	@PatchMapping("/users/card/{username}")
+	public ResponseEntity<Void> patchUser(@PathVariable String username, @RequestBody User user) {
+		try {
+			userService.patchByUsername(username, user.getFirstName(), user.getLastName(), user.getEmail(), user.getPhone());
+			return ResponseEntity.ok().build();
+		} catch (ResourceNotFoundException ex) {
+			logger.error(ex.getMessage());
+			return ResponseEntity.notFound().build();
+		}
+	}
+
 	@DeleteMapping(path = "/users/{userId}")
 	public ResponseEntity<Void> deleteUserById(@PathVariable long userId) {
 		try {

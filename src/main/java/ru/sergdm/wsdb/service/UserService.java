@@ -33,13 +33,19 @@ public class UserService {
 		System.out.println("users = " + users);
 		return users;
 	}
-	
+
 	public User findById(Long id) throws ResourceNotFoundException {
 		Optional<User> userO = userRepository.findById(id);
 		User user = userO.orElseThrow(() -> new ResourceNotFoundException("Cannt find User with id: " + id));
 		return user;
 	}
-	
+
+	public User findByUserName(String username) throws ResourceNotFoundException {
+		Optional<User> userO = Optional.ofNullable(userRepository.findByUsername(username));
+		User user = userO.orElseThrow(() -> new ResourceNotFoundException("Cannt find User with username: " + username));
+		return user;
+	}
+
 	public User save(User user) throws BadResourceException, ResourceAlreadyExistsException {
 		if (!StringUtils.isEmpty(user.getFirstName())) {
 			if (user.getId() != null && existById(user.getId())) {
@@ -79,7 +85,24 @@ public class UserService {
 		}
 		userRepository.save(user);
 	}
-	
+
+	public void patchByUsername(String username, String firstName, String lastName, String email, String phone) throws ResourceNotFoundException {
+		User user = findByUserName(username);
+		if (firstName != null) {
+			user.setFirstName(firstName);
+		}
+		if (lastName != null) {
+			user.setLastName(lastName);
+		}
+		if (email != null) {
+			user.setEmail(email);
+		}
+		if (phone != null) {
+			user.setPhone(phone);
+		}
+		userRepository.save(user);
+	}
+
 	public void deleteById(Long userId) throws ResourceNotFoundException {
 		if (!existById(userId)) {
 			throw new ResourceNotFoundException("Cannot find User with id: " + userId);
