@@ -3,7 +3,6 @@ package ru.sergdm.wsdb;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import javax.validation.Valid;
 
@@ -23,10 +22,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import ru.sergdm.wsdb.client.PaymentClient;
+import ru.sergdm.wsdb.client.model.Account;
 import ru.sergdm.wsdb.exception.BadResourceException;
 import ru.sergdm.wsdb.exception.ResourceAlreadyExistsException;
 import ru.sergdm.wsdb.exception.ResourceNotFoundException;
 import ru.sergdm.wsdb.model.User;
+import ru.sergdm.wsdb.model.CreateUserResponse;
 import ru.sergdm.wsdb.service.UserService;
 
 @RestController
@@ -35,6 +37,8 @@ public class ApiController {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private PaymentClient paymentClient;
 	
 	@GetMapping("/health")
 	public ResponseEntity<Object> health() {
@@ -100,10 +104,16 @@ public class ApiController {
 	}
 
 	@PostMapping(value = {"/users", "/users/card"})
-	public ResponseEntity<User> addUser(@Valid @RequestBody User user) throws URISyntaxException {
+	public ResponseEntity<CreateUserResponse> addUser(@Valid @RequestBody User user) throws URISyntaxException {
 		try {
 			User newUser = userService.save(user);
-			return ResponseEntity.created(new URI("/api/users/" + newUser.getId())).body(newUser);
+			Account account = new Account();
+			account.setUserId(newUser.getId());
+			Account accountNew = paymentClient.addAccount(account);
+			CreateUserResponse response = new CreateUserResponse();
+			response.setUser(newUser);
+			response.setAccount(accountNew);
+			return ResponseEntity.created(new URI("/api/users/" + newUser.getId())).body(response);
 		} catch (ResourceAlreadyExistsException ex) {
 			logger.error(ex.getMessage());
 			return ResponseEntity.status(HttpStatus.CONFLICT).build();
