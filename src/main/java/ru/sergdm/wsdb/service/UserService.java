@@ -118,5 +118,8 @@ public class UserService {
 		return mls;
 
 	}
-	
+
+	public void deleteAll() {
+		userRepository.deleteAll();
+	}
 }

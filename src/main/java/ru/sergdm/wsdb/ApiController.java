@@ -170,4 +170,10 @@ public class ApiController {
 			return ResponseEntity.notFound().build();
 		}
 	}
+	@DeleteMapping("/users")
+	public ResponseEntity<?> deleteUsers(){
+		logger.info("Delete all Users");
+		userService.deleteAll();
+		return ResponseEntity.ok().body(HttpStatus.OK);
+	}
 }
